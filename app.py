@@ -41,9 +41,16 @@ st.info("Edit the table below to add/remove materials or change Press (P) and Lo
 
 # Default data as a starting point
 default_mats = [
-    {'id': 'Type_A', 'qty': 10, 'p': 180, 'l': 4},
-    {'id': 'Type_B', 'qty': 16, 'p': 300, 'l': 8},
-    {'id': 'M3',     'qty': 4,  'p': 220, 'l': 5},
+    {'id': 'M01', 'qty': 10, 'p': 180, 'l': 4},
+    {'id': 'M02', 'qty': 16, 'p': 300, 'l': 8},
+    {'id': 'M03', 'qty': 4,  'p': 220, 'l': 5},
+    {'id': 'M04', 'qty': 0,  'p': 0, 'l': 5},
+    {'id': 'M05', 'qty': 0, 'p': 0, 'l': 0},
+    {'id': 'M06', 'qty': 0, 'p': 0, 'l': 0},
+    {'id': 'M07', 'qty': 0,  'p': 0, 'l': 0},
+    {'id': 'M08', 'qty': 0, 'p': 0, 'l': 0},
+    {'id': 'M09', 'qty': 0,  'p': 0, 'l': 0},
+    {'id': 'M10', 'qty': 0,  'p': 0, 'l': 0},
 ]
 
 # This creates an editable spreadsheet in the app
