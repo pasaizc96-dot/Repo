@@ -13,13 +13,13 @@ import math
 
 # --- 1. APP CONFIG ---
 st.set_page_config(page_title="Factory Optimizer", layout="wide")
-st.title("⚙️ Universal Factory Optimizer")
+st.title("⚙️ Universal Press Planner")
 
 # --- 2. INPUT PANEL (Sidebar & Top) ---
 with st.sidebar:
     st.header("🏁 Global Strategy")
-    ITERATIONS = st.number_input("Search Iterations", value=100000, step=50000, help="Higher = better results, but slower.")
-    TARGET_PARTS_PER_OP = st.number_input("Target PPH Per Operator", value=300)
+    ITERATIONS = st.number_input("Search Iterations", value=1000000, step=50000, help="Higher = better results, but slower.")
+    TARGET_PARTS_PER_OP = st.number_input("Target PPH Per Operator", value=300 help="Calculator tries to achieve first target per operator after that triest to optimize machine optimization. High values optimize productivity, lower values optimize production capacity")
 
     st.divider()
     st.header("🚶 Physical Constraints")
@@ -44,7 +44,7 @@ default_mats = [
     {'id': 'M01', 'qty': 10, 'p': 180, 'l': 4},
     {'id': 'M02', 'qty': 16, 'p': 300, 'l': 8},
     {'id': 'M03', 'qty': 4,  'p': 220, 'l': 5},
-    {'id': 'M04', 'qty': 0,  'p': 0, 'l': 5},
+    {'id': 'M04', 'qty': 0,  'p': 0, 'l': 0},
     {'id': 'M05', 'qty': 0, 'p': 0, 'l': 0},
     {'id': 'M06', 'qty': 0, 'p': 0, 'l': 0},
     {'id': 'M07', 'qty': 0,  'p': 0, 'l': 0},
