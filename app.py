@@ -19,7 +19,7 @@ st.title("⚙️ Universal Press Planner")
 with st.sidebar:
     st.header("🏁 Global Strategy")
     ITERATIONS = st.number_input("Search Iterations", value=1000000, step=50000, help="Higher = better results, but slower.")
-    TARGET_PARTS_PER_OP = st.number_input("Target PPH Per Operator", value=300 help="Calculator tries to achieve first target per operator after that triest to optimize machine optimization. High values optimize productivity, lower values optimize production capacity")
+    TARGET_PARTS_PER_OP = st.number_input("Target PPH Per Operator", value=300, help="Calculator tries to achieve first target per operator after that triest to optimize machine optimization. High values optimize productivity, lower values optimize production capacity")
 
     st.divider()
     st.header("🚶 Physical Constraints")
