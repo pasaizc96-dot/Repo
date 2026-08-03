@@ -28,7 +28,7 @@ with st.sidebar:
 
 # --- 3. MATERIAL INPUTS ---
 st.subheader("📦 Material & Machine Data")
-st.info("Set 'Min Util (%)' for each mold. Set to 0 for filler molds so they can run at low utilization without penalty.")
+st.info("Set 'Min Util (%)' for each mold. Set to 0 for filler molds so they can run at low utilization without penalty. Planner prioritizes achieving target operator PPH, set high for productivity, set low for production")
 
 # Default data with Min Util (%) per mold
 default_mats = [
