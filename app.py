@@ -10,7 +10,7 @@ st.title("⚙️ Universal Press planner")
 with st.sidebar:
     st.header("🏁 Global Strategy")
     ITERATIONS = st.number_input("Search Iterations", value=1000000, step=50000, help="Higher = better results, but slower.")
-    TARGET_PARTS_PER_OP = st.number_input("Target PPH Per Operator", value=300, help="Calculator tries to achieve first target per operator after that triest to optimize machine optimization. High values optimize productivity, lower values optimize production capacity")
+    TARGET_PARTS_PER_OP = st.number_input("Target PPH Per Operator", value=300, help="Calculator tries to achieve first target per operator after that tries to optimize machine optimization.")
 
     st.divider()
     st.header("🚶 Physical Constraints")
@@ -28,23 +28,23 @@ with st.sidebar:
 
 # --- 3. MATERIAL INPUTS ---
 st.subheader("📦 Material & Machine Data")
-st.info("Edit the table below to add/remove materials or change Press (P) and Load (L) times.")
+st.info("Set 'Min Util (%)' for each mold. Set to 0 for filler molds so they can run at low utilization without penalty.")
 
-# Default data as a starting point
+# Default data with Min Util (%) per mold
 default_mats = [
-    {'id': 'M01', 'qty': 10, 'p': 180, 'l': 4},
-    {'id': 'M02', 'qty': 16, 'p': 300, 'l': 8},
-    {'id': 'M03', 'qty': 4,  'p': 220, 'l': 5},
-    {'id': 'M04', 'qty': 0,  'p': 0, 'l': 0},
-    {'id': 'M05', 'qty': 0, 'p': 0, 'l': 0},
-    {'id': 'M06', 'qty': 0, 'p': 0, 'l': 0},
-    {'id': 'M07', 'qty': 0,  'p': 0, 'l': 0},
-    {'id': 'M08', 'qty': 0, 'p': 0, 'l': 0},
-    {'id': 'M09', 'qty': 0,  'p': 0, 'l': 0},
-    {'id': 'M10', 'qty': 0,  'p': 0, 'l': 0},
+    {'id': 'M01', 'qty': 10, 'p': 180, 'l': 4, 'min_util': 75.0},
+    {'id': 'M02', 'qty': 16, 'p': 300, 'l': 8, 'min_util': 75.0},
+    {'id': 'M03', 'qty': 4,  'p': 220, 'l': 5, 'min_util': 0.0},  # Filler Mold
+    {'id': 'M04', 'qty': 0,  'p': 0,   'l': 0, 'min_util': 0.0},
+    {'id': 'M05', 'qty': 0,  'p': 0,   'l': 0, 'min_util': 0.0},
+    {'id': 'M06', 'qty': 0,  'p': 0,   'l': 0, 'min_util': 0.0},
+    {'id': 'M07', 'qty': 0,  'p': 0,   'l': 0, 'min_util': 0.0},
+    {'id': 'M08', 'qty': 0,  'p': 0,   'l': 0, 'min_util': 0.0},
+    {'id': 'M09', 'qty': 0,  'p': 0,   'l': 0, 'min_util': 0.0},
+    {'id': 'M10', 'qty': 0,  'p': 0,   'l': 0, 'min_util': 0.0},
 ]
 
-# This creates an editable spreadsheet in the app
+# Interactive spreadsheet with per-mold min_util settings
 edited_mats = st.data_editor(
     default_mats,
     num_rows="dynamic",
@@ -53,7 +53,14 @@ edited_mats = st.data_editor(
         "id": "Material ID",
         "qty": "Quantity",
         "p": "Press Time (P)",
-        "l": "Load Time (L)"
+        "l": "Load Time (L)",
+        "min_util": st.column_config.NumberColumn(
+            "Min Util (%)",
+            help="Minimum required mold utilization. Set to 0 for filler molds.",
+            min_value=0.0,
+            max_value=100.0,
+            step=5.0
+        )
     }
 )
 
@@ -96,8 +103,13 @@ def evaluate_plan(plan):
             total_m_util += m_util
 
             press_details.append({
-                'id': it['id'], 'p': it['p'], 'l': it['l'],
-                'rounds': laps_needed, 'util': m_util, 'out_hr': press_output
+                'id': it['id'], 
+                'p': it['p'], 
+                'l': it['l'],
+                'min_util': it.get('min_util', 0.0),
+                'rounds': laps_needed, 
+                'util': m_util, 
+                'out_hr': press_output
             })
 
         op_results.append({
@@ -126,7 +138,6 @@ if st.button('🚀 Run Optimizer with Current Settings'):
 
         # The Search Loop
         for i in range(ITERATIONS):
-            # Update progress every 10% to keep app responsive
             if i % (max(1, ITERATIONS // 10)) == 0:
                 progress_bar.progress(i / ITERATIONS)
 
@@ -145,15 +156,24 @@ if st.button('🚀 Run Optimizer with Current Settings'):
                 num_ops = len(res)
                 score = 0
                 all_met_target = True
+                utilization_valid = True
 
                 for op in res:
+                    # Check operator target output
                     if op['output'] < TARGET_PARTS_PER_OP:
                         all_met_target = False
                         score -= (TARGET_PARTS_PER_OP - op['output']) * 1000
                     else:
                         score += 5000
 
-                if all_met_target:
+                    # Check individual mold utilization constraint
+                    for press in op['details']:
+                        min_req = press['min_util']
+                        if press['util'] < min_req:
+                            utilization_valid = False
+                            score -= (min_req - press['util']) * 2000
+
+                if all_met_target and utilization_valid:
                     score += sum(op['avg_m_util'] for op in res) * 100
                     score += (total_out / num_ops) * 10
 
